@@ -1,6 +1,8 @@
-(ns ring.middleware.test.json
-  (:require [clojure.test :refer :all]
-            [ring.middleware.json :refer :all]
+(ns ring.middleware.test.data-json
+  (:require [clojure.test :refer [deftest is testing]]
+            [ring.middleware.data-json :refer [wrap-json-body
+                                          wrap-json-params
+                                          wrap-json-response]]
             [ring.core.protocols :refer [write-body-to-stream]]
             [ring.util.io :refer [string-input-stream]]))
 
@@ -76,6 +78,7 @@
                    :body (string-input-stream "{\"foo\": \"bar\"")}]
       (is (= (handler request) malformed))))
 
+  #_ ; no longer using Cheshire:
   (let [handler  (fn [_] {:status 200 :headers {} :body {:bigdecimals cheshire.parse/*use-bigdecimals?*}})]
     (testing "don't overwrite bigdecimal binding"
       (binding [cheshire.parse/*use-bigdecimals?* false]
@@ -141,6 +144,7 @@
         (is (= @response malformed))
         (is (not (realized? exception))))))
 
+  #_ ; no longer using Cheshire:
   (testing "don't overwrite bigdecimal binding"
     (let [handler  (fn [_ respond _] (respond {:status 200 :headers {} :body {:bigdecimals cheshire.parse/*use-bigdecimals?*}}) )]
       (binding [cheshire.parse/*use-bigdecimals?* false]
@@ -239,6 +243,7 @@
                    :body (string-input-stream "{\"foo\": \"bar\"")}]
       (is (= (handler request) malformed))))
 
+  #_ ; no longer using Cheshire:
   (testing "don't overwrite bigdecimal binding"
     (let [handler  (fn [_] {:status 200 :headers {} :body {:bigdecimals cheshire.parse/*use-bigdecimals?*}})]
       (binding [cheshire.parse/*use-bigdecimals?* false]
@@ -299,6 +304,7 @@
         (is (= @response malformed))
         (is (not (realized? exception)))))
 
+    #_ ; no longer using Cheshire:
     (testing "don't overwrite bigdecimal binding"
       (let [handler  (fn [_ respond _] (respond {:status 200 :headers {} :body {:bigdecimals cheshire.parse/*use-bigdecimals?*}}) )]
         (binding [cheshire.parse/*use-bigdecimals?* false]
@@ -352,8 +358,8 @@
   (testing "JSON options"
     (let [handler  (constantly {:status 200 :headers {} :body {:foo "bar" :baz "quz"}})
           response ((wrap-json-response handler {:pretty true}) {})]
-      (is (or (= (:body response) "{\n  \"foo\" : \"bar\",\n  \"baz\" : \"quz\"\n}")
-              (= (:body response) "{\n  \"baz\" : \"quz\",\n  \"foo\" : \"bar\"\n}")))))
+      (is (or (= (:body response) "{\n  \"foo\": \"bar\",\n  \"baz\": \"quz\"\n}")
+              (= (:body response) "{\n  \"baz\": \"quz\",\n  \"foo\": \"bar\"\n}")))))
 
   (testing "don’t overwrite Content-Type if already set"
     (let [handler  (constantly {:status 200 :headers {"Content-Type" "application/json; some-param=some-value"} :body {:foo "bar"}})
@@ -377,8 +383,8 @@
     (let [handler  (constantly {:status 200 :headers {} :body {:foo "bar" :baz "quz"}})
           response ((wrap-json-response handler {:stream? true :pretty true}) {})
           body (streamable->string (:body response))]
-      (is (or (= body "{\n  \"foo\" : \"bar\",\n  \"baz\" : \"quz\"\n}")
-              (= body "{\n  \"baz\" : \"quz\",\n  \"foo\" : \"bar\"\n}"))))))
+      (is (or (= body "{\n  \"foo\": \"bar\",\n  \"baz\": \"quz\"\n}")
+              (= body "{\n  \"baz\": \"quz\",\n  \"foo\": \"bar\"\n}"))))))
 
 (deftest test-json-response-cps
   (testing "map body"
@@ -404,8 +410,8 @@
           response (promise)
           exception (promise)]
       ((wrap-json-response handler {:pretty true}) {} response exception)
-      (is (or (= (:body @response) "{\n  \"foo\" : \"bar\",\n  \"baz\" : \"quz\"\n}")
-              (= (:body @response) "{\n  \"baz\" : \"quz\",\n  \"foo\" : \"bar\"\n}")))
+      (is (or (= (:body @response) "{\n  \"foo\": \"bar\",\n  \"baz\": \"quz\"\n}")
+              (= (:body @response) "{\n  \"baz\": \"quz\",\n  \"foo\": \"bar\"\n}")))
       (is (not (realized? exception)))))
 
   (testing "don’t overwrite Content-Type if already set"

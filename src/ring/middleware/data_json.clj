@@ -1,29 +1,30 @@
-(ns ring.middleware.json
+(ns ring.middleware.data-json
   "Ring middleware for parsing JSON requests and generating JSON responses."
-  (:require [cheshire.core :as json]
-            [cheshire.parse :as parse]
+  (:require [clojure.data.json :as json]
             [clojure.java.io :as io]
             [ring.core.protocols :as ring-protocols]
-            [ring.util.io :as ring-io]
-            [ring.util.response :refer [content-type]]
-            [ring.util.request :refer [character-encoding]])
+            [ring.util.request :refer [character-encoding]]
+            [ring.util.response :refer [content-type]])
   (:import [java.io InputStream]))
 
-(defn- json-request? [request]
-  (if-let [type (get-in request [:headers "content-type"])]
-    (not (empty? (re-find #"^application/(.+\+)?json" type)))))
+(defn- is-json-request [request]
+  (when-let [type (get-in request [:headers "content-type"])]
+    (re-find #"^application/(.+\+)?json" type)))
 
 (defn- read-json [request & [{:keys [keywords? bigdecimals? key-fn]}]]
-  (if (json-request? request)
-    (if-let [^InputStream body (:body request)]
+  (when (is-json-request request)
+    (when-let [^InputStream body (:body request)]
       (let [^String encoding (or (character-encoding request)
                                  "UTF-8")
             body-reader (java.io.InputStreamReader. body encoding)]
-        (binding [parse/*use-bigdecimals?* bigdecimals?]
           (try
-            [true (json/parse-stream body-reader (or key-fn keywords?))]
-            (catch com.fasterxml.jackson.core.JsonParseException ex
-              [false nil])))))))
+          [true (json/read body-reader
+                           :bigdec bigdecimals?
+                           :key-fn (or key-fn
+                                       (when keywords?
+                                         keyword)))]
+          (catch Exception _ex
+            [false nil]))))))
 
 (def ^{:doc "The default response to return when a JSON request is malformed."}
   default-malformed-response
@@ -36,7 +37,7 @@
   if the JSON is malformed. See: wrap-json-body."
   [request options]
   (if-let [[valid? json] (read-json request options)]
-    (if valid? (assoc request :body json))
+    (when valid? (assoc request :body json))
     request))
 
 (defn wrap-json-body
@@ -77,7 +78,7 @@
   JSON is malformed. See: wrap-json-params."
   [request options]
   (if-let [[valid? json] (read-json request options)]
-    (if valid? (assoc-json-params request json))
+    (when valid? (assoc-json-params request json))
     request))
 
 (defn wrap-json-params
@@ -106,10 +107,33 @@
        (handler request respond raise)
        (respond malformed-response)))))
 
+(defn- adapt-options
+  "Given an options map that would work for Cheshire, adapt it to work
+  with data.json:
+  * :pretty -> :indent
+  * :escape-non-ascii -> opposite of :escape-unicode
+  and unroll to a collection."
+  [options]
+  (-> (cond-> options
+        (contains? options :pretty)
+        (assoc :indent (:pretty options))
+        (contains? options :escape-non-ascii)
+        (assoc :escape-unicode (not (:escape-non-ascii options))))
+      (dissoc :pretty :escape-non-ascii)
+      (->> (mapcat identity))))
+
+(defn- json-writer
+  ([data options]
+   (apply json/write-str data (adapt-options options)))
+  ([data stream options]
+   (let [writer (io/writer stream)]
+     (apply json/write data writer (adapt-options options))
+     (.flush writer))))
+
 (defrecord JsonStreamingResponseBody [body options]
   ring-protocols/StreamableResponseBody
   (write-body-to-stream [_ _ output-stream]
-    (json/generate-stream body (io/writer output-stream) options)))
+    (json-writer body (io/writer output-stream) options)))
 
 (defn json-response
   "Converts responses with a map or a vector for a body into a JSON response.
@@ -118,7 +142,7 @@
   (if (coll? (:body response))
     (let [generator (if (:stream? options)
                       ->JsonStreamingResponseBody
-                      json/generate-string)
+                      json-writer)
           options (dissoc options :stream?)
           json-resp (update-in response [:body] generator options)]
       (if (contains? (:headers response) "Content-Type")

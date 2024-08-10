@@ -24,7 +24,7 @@
     (test (assoc opts :aliases [version]))))
 
 (defn- pom-template [version]
-  [[:description "FIXME: my new library."]
+  [[:description "Ring middleware for handling JSON, using clojure.data.json."]
    [:url "https://github.com/seancorfield/ring-data-json"]
    [:licenses
     [:license

@@ -15,16 +15,8 @@ use cases.
 This library uses the `ring.middleware.data-json` namespace to
 distinguish it from the original `ring.middleware.json` namespace
 in Ring's [ring-json](https://github.com/ring-clojure/ring-json)
-middleware, but is otherwise a drop-in replacement for that library.
-
-In addition to supporting `:pretty`, `:escape-non-ascii`, `:keywords?`,
-and `:bigdecimals?` options (for compatibility with `ring-json`, and
-Cheshire), this library also supports all the options that
-`clojure.data.json` supports (`:key-fn` is common to both libraries,
-`:indent true` is the equivalent to `:pretty true`,
-`:escape-unicode true` -- the default -- is equivalent to
-`:escape-non-ascii true` so that is a difference in the default
-behavior).
+middleware, but is otherwise intended to be a drop-in replacement
+for that library.
 
 ## Installation
 
@@ -109,6 +101,45 @@ option. Instead, use the standard Ring `wrap-keyword-params` function:
       wrap-json-params))
 ```
 
+### Differences from Ring-JSON
+
+Although this is intended to be a drop-in replacement for Ring-JSON,
+there are inevitably going to be some corner case differences. Those
+will be documented here as they are discovered.
+
+#### Options
+
+The following options are supported for compatibility:
+
+* `:bigdecimals?` -- can be set to `true` to return floating point numbers as `BigDecimal`; the equivalent `data.json` option is `:bigdec true`.
+* `:escape-non-ascii` -- can be set to `true` or `false` to enable or disable escaping of non-ASCII characters in the output; *the default for Ring-JSON is `false` but the default for Ring-Data-JSON is `true`*; the underlying `data.json` option is `:escape-unicode`.
+* `:key-fn` -- this is the same for both libraries (and it is asymmetric between response and params/body).
+* `:keywords?` -- can be set to `true` to convert keys in maps to keywords; the equivalent `data.json` option is `:key-fn keyword` (which can also be used by both libraries).
+* `:pretty` -- can be set to `true` to pretty-print the JSON output; the equivalent `data.json` option is `:indent true` and there are some slight formatting differences (e.g., no space before the colon in maps).
+
+Ring-Data-JSON does not support Cheshire-specific options beyond these,
+but it supports all the options that `data.json` supports.
+
+In particular, for Ring-JSON, you could specify `:date-format` as
+as format string for `java.text.SimpleDateFormat` to control how dates
+were formatted in the output. Ring-Data-JSON instead uses the
+`:date-formatter` option which should be
+a `java.time.format.DateTimeFormatter` instance.
+
+#### Date/Time Formatting
+
+As noted above, Ring-Data-JSON uses `java.time.format.DateTimeFormatter`
+and coerces date/time values to `java.time.Instant` before formatting.
+
+Since Ring-JSON uses `java.text.SimpleDateFormat` and older date/time
+types, there are some differences in which formats are supported.
+
+> Note: discussion is ongoing about enhancing `data.json`'s date/time formatting support that may make this difference moot.
+
+#### Supported Clojure Versions
+
+Ring-JSON still supports Clojure 1.7.0. Ring-Data-JSON requires
+at least Clojure 1.8.0.
 
 ## License
 

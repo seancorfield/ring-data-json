@@ -1,4 +1,4 @@
-(ns ring.middleware.test.data-json
+(ns ring.middleware.data-json-test
   (:require [clojure.test :refer [deftest is testing]]
             [ring.middleware.data-json :refer [wrap-json-body
                                           wrap-json-params

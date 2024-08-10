@@ -5,7 +5,10 @@
             [ring.core.protocols :as ring-protocols]
             [ring.util.request :refer [character-encoding]]
             [ring.util.response :refer [content-type]])
-  (:import [java.io InputStream]))
+  (:import [java.io InputStream]
+           [java.time.format DateTimeFormatter]))
+
+(set! *warn-on-reflection* true)
 
 (defn- is-json-request [request]
   (when-let [type (get-in request [:headers "content-type"])]
@@ -112,14 +115,17 @@
   with data.json:
   * :pretty -> :indent
   * :escape-non-ascii -> opposite of :escape-unicode
+  * :date-format -> :date-formatter
   and unroll to a collection."
   [options]
   (-> (cond-> options
         (contains? options :pretty)
         (assoc :indent (:pretty options))
         (contains? options :escape-non-ascii)
-        (assoc :escape-unicode (not (:escape-non-ascii options))))
-      (dissoc :pretty :escape-non-ascii)
+        (assoc :escape-unicode (not (:escape-non-ascii options)))
+        (contains? options :date-format)
+        (assoc :date-formatter (DateTimeFormatter/ofPattern (:date-format options))))
+      (dissoc :pretty :escape-non-ascii :date-format)
       (->> (mapcat identity))))
 
 (defn- json-writer

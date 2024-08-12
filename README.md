@@ -143,14 +143,15 @@ As noted above, Ring-Data-JSON uses `java.time.format.DateTimeFormatter`
 and coerces date/time values to `java.time.Instant` before formatting.
 
 Since Ring-JSON uses `java.text.SimpleDateFormat` and older date/time
-types, there are some differences in which formats are supported.
+types, there are some differences in how certain formats are supported.
 
-> Note: discussion is ongoing about enhancing `data.json`'s date/time formatting support that may make this difference moot.
+In particular, you may need to add a timezone to the `DateTimeFormatter`
+since `Instant` does not have a timezone (it is always UTC).
 
 #### Supported Clojure Versions
 
-Ring-JSON still supports Clojure 1.7.0. Ring-Data-JSON requires
-at least Clojure 1.8.0.
+Ring-Data-JSON requires at least Clojure 1.8.0.
+Ring-JSON still supports Clojure 1.7.0.
 
 ## License
 

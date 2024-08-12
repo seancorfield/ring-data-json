@@ -1,9 +1,9 @@
 # Ring-Data-JSON [![Clojure CI Release](https://github.com/seancorfield/ring-data-json/actions/workflows/test-and-release.yml/badge.svg)](https://github.com/seancorfield/ring-data-json/actions/workflows/test-and-release.yml) [![Clojure CI Develop](https://github.com/seancorfield/ring-data-json/actions/workflows/test-and-snapshot.yml/badge.svg)](https://github.com/seancorfield/ring-data-json/actions/workflows/test-and-snapshot.yml) [![Clojure CI Pull Request](https://github.com/seancorfield/ring-data-json/actions/workflows/test.yml/badge.svg)](https://github.com/seancorfield/ring-data-json/actions/workflows/test.yml)
 
-Standard Ring middleware functions for handling JSON requests and
+Ring middleware functions for handling JSON requests and
 responses -- using
 [org.clojure/data.json](https://github.com/clojure/data.json),
-rather than Cheshire.
+rather than Cheshire (and Jackson).
 
 ## TL;DR
 

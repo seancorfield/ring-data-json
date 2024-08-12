@@ -1,8 +1,8 @@
-(ns ring.middleware.data-json-test
+(ns org.corfield.ring.middleware.data-json-test
   (:require [clojure.test :refer [deftest is testing]]
-            [ring.middleware.data-json :refer [wrap-json-body
-                                          wrap-json-params
-                                          wrap-json-response]]
+            [org.corfield.ring.middleware.data-json :refer [wrap-json-body
+                                                            wrap-json-params
+                                                            wrap-json-response]]
             [ring.core.protocols :refer [write-body-to-stream]]
             [ring.util.io :refer [string-input-stream]]))
 

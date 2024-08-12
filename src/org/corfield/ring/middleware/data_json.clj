@@ -1,4 +1,4 @@
-(ns ring.middleware.data-json
+(ns org.corfield.ring.middleware.data-json
   "Ring middleware for parsing JSON requests and generating JSON responses."
   (:require [clojure.data.json :as json]
             [clojure.java.io :as io]

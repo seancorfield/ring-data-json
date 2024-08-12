@@ -4,7 +4,7 @@
             [deps-deploy.deps-deploy :as dd]))
 
 (def lib 'com.github.seancorfield/ring-data-json)
-(def version "0.5.2") ; version in progress
+(def version "0.5.3") ; version in progress
 (def snapshot (str version "-SNAPSHOT"))
 (def class-dir "target/classes")
 

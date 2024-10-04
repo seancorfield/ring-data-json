@@ -19,7 +19,7 @@
   opts)
 
 (defn test-all "Run the tests for multiple Clojure versions." [opts]
-  (doseq [version [:1.8 :1.9 :1.10 :1.11 :1.12]]
+  (doseq [version [:1.9 :1.10 :1.11 :1.12]]
     (println "\nTesting with Clojure" (name version))
     (test (assoc opts :aliases [version]))))
 

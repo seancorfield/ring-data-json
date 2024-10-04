@@ -150,7 +150,7 @@ since `Instant` does not have a timezone (it is always UTC).
 
 #### Supported Clojure Versions
 
-Ring-Data-JSON requires at least Clojure 1.8.0.
+Ring-Data-JSON requires at least Clojure 1.9.0.
 Ring-JSON still supports Clojure 1.7.0.
 
 ## License

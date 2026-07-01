@@ -1,5 +1,8 @@
 # CHANGES
 
+* 0.5.next in progress
+  * Update dev/test deps.
+
 * 0.5.3 -- 2026-02-04
   * Update `org.clojure/data.json` to 2.5.2.
   * Update `ring/ring-core` to 1.15.3.

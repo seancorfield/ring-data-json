@@ -5,6 +5,8 @@ responses -- using
 [org.clojure/data.json](https://github.com/clojure/data.json),
 rather than Cheshire (and Jackson).
 
+> [My AI Usage Statement](https://corfield.org/blog/2026/08/02/ai/)
+
 ## TL;DR
 
 The latest versions on Clojars and on cljdoc:
